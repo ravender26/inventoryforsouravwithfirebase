@@ -1,0 +1,8 @@
+.App {
+  text-align: center;
+}
+.itemBorder {
+  /* background: red; */
+  border: 2px solid red;
+  border-radius: 12px;
+}
