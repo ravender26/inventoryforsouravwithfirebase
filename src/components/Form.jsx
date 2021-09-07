@@ -9,12 +9,11 @@ import {
   updateDoc,
   setDoc,
 } from 'firebase/firestore';
-import { storage } from 'firebase/storage';
-import { getStorage, ref } from "firebase/storage";
+// import { getStorage, ref, uploadBytesResumable  } from 'firebase/storage';
+import { getStorage, ref, uploadBytes } from 'firebase/storage';
 
 const Form = () => {
-  const storage = getStorage();
-  const [images,setImages]= useState(null);
+  const [images, setImages] = useState(null);
   const [firebaseData, setFirebaseData] = useState([]);
   const [categoryArray, setCategoryArray] = useState([
     'irem1',
@@ -66,6 +65,13 @@ const Form = () => {
     seeData();
   }, []);
 
+  useEffect(() => {
+    console.log('images: ', images);
+    console.log(typeof images);
+    // console.log('images: ', images[0]);
+    console.log(images);
+  }, [images]);
+
   const db = getFirestore();
   const writeUserData = async (e) => {
     e.preventDefault();
@@ -110,31 +116,25 @@ const Form = () => {
   };
 
   const handleUploadChange = (e) => {
-   console.log("upload", e.target.files);
-   if(e.target.files[0]){
-     setImages(e.target.files[0])
-   }
+    // console.log('upload', e.target.files);
+    // setImages(e.target.files);
+    if (e.target.files[0]) {
+      setImages(e.target.files[0]);
+    }
   };
   const handleUpload = () => {
-    console.log("upload", images);
-    // const storage = storage();
-    // const uploadTask = storage.ref(`images/${image.name}`).put(image);
-    // uploadTask.on(
-    //   "stage_changed",
-    //   snapshot => {},
-    //   error => {
-    //     console.log("error");
-    //   },
-    //   () => {
-    //     .ref("images")
-    //     .child(image.name)
-    //       .getDownloadURL()
-    //       .then(url => {
-    //         console.log(url)
-    //       })
-    //   }
-    // )
-   }
+    //   if(images == null)
+    //   return;
+    //   storageVar.ref(`/images/${images.image.name}`).put(images)
+    // .on("state_changed" , alert("success") , alert);
+    let file = images;
+    var storage = getStorage();
+    var storageRef = ref(storage, 'folder/' + file.name);
+    // 'file' comes from the Blob or File API
+    uploadBytes(storageRef, file).then((snapshot) => {
+      console.log('Uploaded a blob or file!');
+    });
+  };
 
   const deleteItem = async (key) => {
     console.log('delete', key);
@@ -177,18 +177,13 @@ const Form = () => {
           name="category"
         >
           {categoryArray.map((category, i) => {
-            return <option required value={category}>{category}</option>;
+            return (
+              <option required value={category}>
+                {category}
+              </option>
+            );
           })}
         </select>
-
-        {/*<input
-          type="text"
-          value={items.category}
-          placeholder="Category"
-          required
-          name="category"
-          onChange={handleChange}
-        />*/}
 
         <br />
         <label>Sub Category :</label>
@@ -202,14 +197,7 @@ const Form = () => {
             return <option value={subCategory}>{subCategory}</option>;
           })}
         </select>
-        {/*<input
-          type="text"
-          value={items.subCategory}
-          placeholder="Sub Category"
-          required
-          name="subCategory"
-          onChange={handleChange}
-        />*/}
+
         <br />
         <label>Item Name :</label>
         <input
@@ -271,16 +259,7 @@ const Form = () => {
           onChange={handleChange}
         />
         <br />
-        {/*<label>Discount :</label>
-        <input
-          placeholder="Discount"
-          required
-          type="text"
-          value={items.discount}
-          name="Discount"
-          onChange={handleChange}
-        />
-        <br />*/}
+
         <label>Purchase Price :</label>
         <input
           placeholder="Purchase Price"
@@ -311,52 +290,31 @@ const Form = () => {
           <option value="true">Yes</option>
           <option value="false">No</option>
         </select>
-        {/*} <input
-          placeholder="On Sale"
-          required
-          type="text"
-          value={items.onSale}
-          name="onSale"
-          onChange={handleChange}
-      />*/}
+
         <br />
         <label>Show on website :</label>
         <select
-        onChange={handleChange}
-        required
-        value={items.showOnWebsite}
-        name="showOnWebsite"
-      >
-        <option value="true">Yes</option>
-        <option value="false">No</option>
-      </select>
-        {/*<input
-          placeholder="Show on website"
+          onChange={handleChange}
           required
-          type="text"
           value={items.showOnWebsite}
           name="showOnWebsite"
-          onChange={handleChange}
-        />*/}
+        >
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+
         <br />
         <label>Item come on billing :</label>
         <select
-        onChange={handleChange}
-        required
-        value={items.itemComeOnBilling}
-        name="itemComeOnBilling"
-      >
-        <option value="true">Yes</option>
-        <option value="false">No</option>
-      </select>
-        {/*<input
-          placeholder="Item come on billing"
+          onChange={handleChange}
           required
-          type="text"
           value={items.itemComeOnBilling}
           name="itemComeOnBilling"
-          onChange={handleChange}
-        />*/}
+        >
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+
         <br />
         <label>Image :</label>
         <input
@@ -369,11 +327,23 @@ const Form = () => {
         />
         <br />
         <br />
-        <input type="file" onchange={handleUploadChange}/>
-        <button type="submit">Add Item</button>
-        </form>
+        <br />
+        <br />
+        <br />
 
+        <input type="file" onChange={handleUploadChange} />
         <button onClick={handleUpload}>upload</button>
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+
+        <button type="submit">Add Item</button>
+      </form>
 
       <br />
 
