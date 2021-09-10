@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import {
   collection,
   addDoc,
@@ -8,113 +8,67 @@ import {
   deleteDoc,
   updateDoc,
   setDoc,
-} from 'firebase/firestore';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+} from "firebase/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const Form = () => {
   var storage = getStorage();
+  const db = getFirestore();
+  const [imageName, setImageName] = useState("");
+  const [imageURl, setImageUrl] = useState("");
   const [images, setImages] = useState(null);
   const [firebaseData, setFirebaseData] = useState([]);
   const [categoryArray, setCategoryArray] = useState([
-    'item1',
-    'item2',
-    'item3',
-    'item4',
+    "item1",
+    "item2",
+    "item3",
+    "item4",
   ]);
   const [subCategoryArray, setSubCategoryArray] = useState([
-    'item11',
-    'item22',
-    'item33',
-    'item44',
+    "item11",
+    "item22",
+    "item33",
+    "item44",
   ]);
   const [items, setItems] = useState({
-    category: '',
-    subCategory: '',
-    itemName: '',
-    quanTity: '',
-    hsnCode: '',
-    taxSlab: '',
-    mrp: '',
-    discount: '',
-    purchasePrice: '',
-    salePrice: '',
-    onSale: '',
-    showOnWebsite: '',
-    itemComeOnBilling: '',
-    image: '',
+    category: "",
+    subCategory: "",
+    itemName: "",
+    quanTity: "",
+    hsnCode: "",
+    taxSlab: "",
+    mrp: "",
+    discount: "",
+    purchasePrice: "",
+    salePrice: "",
+    onSale: "",
+    showOnWebsite: "",
+    itemComeOnBilling: "",
+    image: "",
+    imageURL: "",
   });
   const [updateItemState, setUpdateItemState] = useState({
-    category: 'test1',
-    subCategory: 'test',
-    itemName: 'test',
-    quanTity: 'test',
-    hsnCode: 'test',
-    taxSlab: 'test',
-    mrp: 'test',
-    discount: 'test',
-    purchasePrice: 'test',
-    salePrice: 'test',
-    onSale: 'test',
-    showOnWebsite: 'test',
-    itemComeOnBilling: 'test',
-    image: 'test',
+    category: "test1",
+    subCategory: "test",
+    itemName: "test",
+    quanTity: "test",
+    hsnCode: "test",
+    taxSlab: "test",
+    mrp: "test",
+    discount: "test",
+    purchasePrice: "test",
+    salePrice: "test",
+    onSale: "test",
+    showOnWebsite: "test",
+    itemComeOnBilling: "test",
+    image: "test",
+    imageURL: "test",
   });
 
-  useEffect(() => {
-    console.log('firebaseData: ', firebaseData);
-    seeData();
-  }, [items]);
-
-  useEffect((event) => {
-    getDownloadURL(ref(storage, 'https://firebasestorage.googleapis.com/v0/b/inventory-for-shop.appspot.com/o/folder%2FIMG_20191115_205117_small.jpg?alt=media&token=f7f0e081-f94d-41e5-af8c-cd27c2173fa9'))
-  .then((url) => {
-    const xhr = new XMLHttpRequest();
-    xhr.responseType = 'blob';
-    xhr.onload = (event) => {
-      const blob = xhr.response;
-    };
-    xhr.open('GET', url);
-    xhr.send();
-    const img = document.getElementById('myimg');
-    img.setAttribute('src', url);
-  })
-  .catch((error) => {
-  });
-  }, []);
-
-
-
-
-
-
-  const [testImg,setTestImg] = useState();
-  useEffect(() => {
-    getDownloadURL(ref(storage, 'folder/stars.jpg'))
-  .then((url) => {
-    console.log("url",{url})
-    setTestImg(url)
-    const xhr = new XMLHttpRequest();
-    xhr.responseType = 'blob';
-    xhr.onload = (event) => {
-      const blob = xhr.response;
-    };
-    xhr.open('GET', url);
-    xhr.send();
-
-    // Or inserted into an <img> element
-    const img = document.getElementById('myimg');
-    img.setAttribute('src', url);
-  })
-  .catch((error) => {
-    // Handle any errors
-  });
-  },[])
-
-  const db = getFirestore();
   const writeUserData = async (e) => {
     e.preventDefault();
     try {
-      const docRef = await addDoc(collection(db, 'items'), {
+      const docRef = await addDoc(collection(db, "items"), {
         category: items.category,
         subCategory: items.subCategory,
         itemName: items.itemName,
@@ -129,61 +83,83 @@ const Form = () => {
         showOnWebsite: items.showOnWebsite,
         itemComeOnBilling: items.itemComeOnBilling,
         image: items.image,
+        imageURL: items.imageURL,
       });
-      console.log('Document written with ID: ', docRef.id);
+      console.log("Document written with ID: ", docRef.id);
     } catch (e) {
-      console.error('Error adding document: ', e);
+      console.error("Error adding document: ", e);
     }
     setItems({
-      category: '',
-      subCategory: '',
-      itemName: '',
-      quanTity: '',
-      hsnCode: '',
-      taxSlab: '',
-      mrp: '',
-      discount: '',
-      purchasePrice: '',
-      salePrice: '',
-      onSale: '',
-      showOnWebsite: '',
-      itemComeOnBilling: '',
-      image: '',
+      category: "",
+      subCategory: "",
+      itemName: "",
+      quanTity: "",
+      hsnCode: "",
+      taxSlab: "",
+      mrp: "",
+      discount: "",
+      purchasePrice: "",
+      salePrice: "",
+      onSale: "",
+      showOnWebsite: "",
+      itemComeOnBilling: "",
+      image: "",
+      imageURL: "",
     });
     seeData();
   };
-
+  
   const handleUploadChange = (e) => {
     if (e.target.files[0]) {
       setImages(e.target.files[0]);
     }
   };
-  const handleUpload = () => {
 
+  const handleUpload = (e) => {
+    e.preventDefault();
     let file = images;
-    var storageRef = ref(storage, 'folder/' + file.name);
+    let a = file.name;
+    setImageName(a);
+    console.log("file name", a);
+    var storageRef = ref(storage, "folder/" + file.name);
     // 'file' comes from the Blob or File API
     uploadBytes(storageRef, file).then((snapshot) => {
-      console.log('Uploaded a blob or file!');
+      console.log("Uploaded a blob or file!");
     });
   };
+  useEffect(() => {
+    getDownloadURL(ref(storage, `folder/${imageName}`)).then((url) => {
+      setImageUrl(url);
+    });
+  }, [imageName]);
+  
+  useEffect(() => {
+    console.log("Uploaded a blob or file!",imageName,imageURl);
+    setItems({
+      ...items,
+      imageURL: imageURl,
+    });
+  } , [imageURl]);
+
+
+
 
   const deleteItem = async (key) => {
-    console.log('delete', key);
-    await deleteDoc(doc(db, 'items', key));
+    console.log("delete", key);
+    await deleteDoc(doc(db, "items", key));
   };
 
   const updateItem = async (items) => {
-    const newData = doc(db, 'items', items.key);
+    const newData = doc(db, "items", items.key);
     await updateDoc(newData, { ...updateItemState });
   };
 
   const seeData = async () => {
-    const querySnapshot = await getDocs(collection(db, 'items'));
+    const querySnapshot = await getDocs(collection(db, "items"));
     const tempArray = [];
     querySnapshot.forEach((doc) => {
-      console.log('jashdkjhd', `${doc.id} => ${doc.data()}`);
-      console.log('test', doc.data());
+      console.log("jashdkjhd", `${doc.id} => ${doc.data()}`);
+      console.log("test", doc.data());
       const document = { key: doc.id, data: doc.data() };
       tempArray.push(document);
     });
@@ -377,9 +353,6 @@ const Form = () => {
         <button type="submit">Add Item</button>
       </form>
 
-      <image id="myimg"/>
-      <img src={testImg} alt="Logo" />
-
       <br />
 
       {firebaseData.map((items, key) => {
@@ -400,6 +373,7 @@ const Form = () => {
             <p>{items.data.showOnWebsite}</p>
             <p>{items.data.itemComeOnBilling}</p>
             <p>{items.data.image}</p>
+            <img src={items.data.imageURL} alt="Logo" />
             <button onClick={() => updateItem(items)}>Edit</button>
             <button onClick={() => deleteItem(items.key)}>Delete</button>
           </div>
