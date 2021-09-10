@@ -9,20 +9,20 @@ import {
   updateDoc,
   setDoc,
 } from 'firebase/firestore';
-// import { getStorage, ref, uploadBytesResumable  } from 'firebase/storage';
-import { getStorage, ref, uploadBytes } from 'firebase/storage';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const Form = () => {
+  var storage = getStorage();
   const [images, setImages] = useState(null);
   const [firebaseData, setFirebaseData] = useState([]);
   const [categoryArray, setCategoryArray] = useState([
-    'irem1',
+    'item1',
     'item2',
     'item3',
     'item4',
   ]);
   const [subCategoryArray, setSubCategoryArray] = useState([
-    'irem11',
+    'item11',
     'item22',
     'item33',
     'item44',
@@ -63,14 +63,52 @@ const Form = () => {
   useEffect(() => {
     console.log('firebaseData: ', firebaseData);
     seeData();
+  }, [items]);
+
+  useEffect((event) => {
+    getDownloadURL(ref(storage, 'https://firebasestorage.googleapis.com/v0/b/inventory-for-shop.appspot.com/o/folder%2FIMG_20191115_205117_small.jpg?alt=media&token=f7f0e081-f94d-41e5-af8c-cd27c2173fa9'))
+  .then((url) => {
+    const xhr = new XMLHttpRequest();
+    xhr.responseType = 'blob';
+    xhr.onload = (event) => {
+      const blob = xhr.response;
+    };
+    xhr.open('GET', url);
+    xhr.send();
+    const img = document.getElementById('myimg');
+    img.setAttribute('src', url);
+  })
+  .catch((error) => {
+  });
   }, []);
 
+
+
+
+
+
+  const [testImg,setTestImg] = useState();
   useEffect(() => {
-    console.log('images: ', images);
-    console.log(typeof images);
-    // console.log('images: ', images[0]);
-    console.log(images);
-  }, [images]);
+    getDownloadURL(ref(storage, 'folder/stars.jpg'))
+  .then((url) => {
+    console.log("url",{url})
+    setTestImg(url)
+    const xhr = new XMLHttpRequest();
+    xhr.responseType = 'blob';
+    xhr.onload = (event) => {
+      const blob = xhr.response;
+    };
+    xhr.open('GET', url);
+    xhr.send();
+
+    // Or inserted into an <img> element
+    const img = document.getElementById('myimg');
+    img.setAttribute('src', url);
+  })
+  .catch((error) => {
+    // Handle any errors
+  });
+  },[])
 
   const db = getFirestore();
   const writeUserData = async (e) => {
@@ -116,19 +154,13 @@ const Form = () => {
   };
 
   const handleUploadChange = (e) => {
-    // console.log('upload', e.target.files);
-    // setImages(e.target.files);
     if (e.target.files[0]) {
       setImages(e.target.files[0]);
     }
   };
   const handleUpload = () => {
-    //   if(images == null)
-    //   return;
-    //   storageVar.ref(`/images/${images.image.name}`).put(images)
-    // .on("state_changed" , alert("success") , alert);
+
     let file = images;
-    var storage = getStorage();
     var storageRef = ref(storage, 'folder/' + file.name);
     // 'file' comes from the Blob or File API
     uploadBytes(storageRef, file).then((snapshot) => {
@@ -344,6 +376,9 @@ const Form = () => {
 
         <button type="submit">Add Item</button>
       </form>
+
+      <image id="myimg"/>
+      <img src={testImg} alt="Logo" />
 
       <br />
 
